@@ -59,7 +59,12 @@ switch (process.env.NODE_ENV) {
         break;
     case 'test':
         // @ts-expect-error
-        namespaces = await import('../assets/build/routes.json');
+        try {
+  namespaces = (await import('../assets/build/routes')).default;
+} catch (err) {
+  console.error('❌ Failed to load routes. Did you forget to run the build script?');
+  throw err;
+}
         if (namespaces.default) {
             // @ts-ignore
             namespaces = namespaces.default;
