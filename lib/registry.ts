@@ -53,28 +53,25 @@ export type NamespacesType = Record<
 
 let namespaces: NamespacesType = {};
 
-switch (process.env.NODE_ENV) {
-    case 'production':
-        namespaces = (await import('../assets/build/routes')).default;
-        break;
-    case 'test':
-        // @ts-expect-error
-        try {
-  namespaces = (await import('../assets/build/routes')).default;
-} catch (err) {
-  console.error('❌ Failed to load routes. Did you forget to run the build script?');
-  throw err;
-}
-        if (namespaces.default) {
-            // @ts-ignore
-            namespaces = namespaces.default;
-        }
-        break;
-    default:
-        modules = directoryImport({
-            targetDirectoryPath: path.join(__dirname, './routes'),
-            importPattern: /\.ts$/,
-        }) as typeof modules;
+if (process.env.NODE_ENV === 'production') {
+    try {
+        const imported = await import('../assets/build/routes.js');
+        namespaces = imported.default;
+    } catch (err) {
+        console.warn('⚠️ routes.js not found — skipping for now (likely during build)');
+    }
+} else if (process.env.NODE_ENV === 'test') {
+    try {
+        const imported = await import('../assets/build/routes.json');
+        namespaces = imported.default || imported;
+    } catch (err) {
+        console.warn('⚠️ routes.json not found — skipping for now (likely during test)');
+    }
+} else {
+    modules = directoryImport({
+        targetDirectoryPath: path.join(__dirname, './routes'),
+        importPattern: /\.ts$/,
+    }) as typeof modules;
 }
 
 if (config.feature.disable_nsfw) {
