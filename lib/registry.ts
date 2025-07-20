@@ -55,7 +55,7 @@ let namespaces: NamespacesType = {};
 
 switch (process.env.NODE_ENV) {
     case 'production':
-        namespaces = (await import('../assets/build/routes.js')).default;
+        namespaces = (await import('../assets/build/routes')).default;
         break;
     case 'test':
         // @ts-expect-error
