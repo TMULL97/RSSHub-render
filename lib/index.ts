@@ -7,13 +7,13 @@ import os from 'node:os';
 import cluster from 'node:cluster';
 import process from 'node:process';
 
-const port = config.connect.port;
+const port = Number(process.env.PORT) || config.connect.port;
 const hostIPList = getLocalhostAddress();
 
 let server;
 if (config.enableCluster) {
     if (cluster.isPrimary) {
-        logger.info(`🎉 RSSHub is running on port ${port}! Cheers!`);
+        logger.info(`🎉 RSSHub is running on port ${port} (env override: ${process.env.PORT || 'none'})! Cheers!`);
         logger.info(`🔗 Local: 👉 http://localhost:${port}`);
         if (config.listenInaddrAny) {
             for (const ip of hostIPList) {
